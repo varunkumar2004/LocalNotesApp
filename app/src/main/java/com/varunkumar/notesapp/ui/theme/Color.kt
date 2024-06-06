@@ -19,6 +19,7 @@ val Pink40 = Color(0xFF7D5260)
 val whitesmoke = Color.White
 
 val lightPink = Color(0xFFFFEDEB)
+val indicatorPInk = Color(0xFFFFB9B2)
 val mediumPink = Color(0xFF4E404A)
 val darkPink = Color(0xFF1B181D)
 
@@ -53,6 +54,6 @@ fun customNavigationBarItemColors() : NavigationBarItemColors {
         unselectedIconColor = mediumPink,
         selectedTextColor = darkPink,
         unselectedTextColor = mediumPink,
-        indicatorColor = lightPink
+        indicatorColor = indicatorPInk
     )
 }

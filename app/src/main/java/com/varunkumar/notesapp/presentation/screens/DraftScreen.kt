@@ -32,16 +32,21 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import com.varunkumar.notesapp.presentation.viewmodels.AppViewModel
 import com.varunkumar.notesapp.presentation.viewmodels.DraftViewModel
 import com.varunkumar.notesapp.ui.theme.customTextFieldColors
 import com.varunkumar.notesapp.ui.theme.darkPink
 import com.varunkumar.notesapp.ui.theme.lightPink
+import com.varunkumar.notesapp.utils.CustomNavigationBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DraftScreen(
     modifier: Modifier = Modifier,
     id: Int,
+    appViewModel: AppViewModel,
+    navController: NavHostController,
     onBackClick: () -> Unit,
     onSavedClick: () -> Unit
 ) {
@@ -51,10 +56,8 @@ fun DraftScreen(
     var isTitleFocused by remember { mutableStateOf(false) }
     var isContentFocused by remember { mutableStateOf(false) }
 
-    LaunchedEffect(id) {
-        if (id != -1) {
-            viewModel.getNoteById(id)
-        }
+    if (id != -1) {
+        viewModel.getNoteById(id)
     }
 
     Scaffold(
@@ -116,6 +119,12 @@ fun DraftScreen(
                         )
                     }
                 }
+            )
+        },
+        bottomBar = {
+            CustomNavigationBar(
+                appViewModel = appViewModel,
+                navController = navController
             )
         }
     ) {

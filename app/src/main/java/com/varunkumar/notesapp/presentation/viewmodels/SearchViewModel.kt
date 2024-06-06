@@ -1,6 +1,5 @@
 package com.varunkumar.notesapp.presentation.viewmodels
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,9 +8,11 @@ import com.varunkumar.notesapp.domain.NoteDao
 import com.varunkumar.notesapp.domain.models.Note
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -25,9 +26,10 @@ class SearchViewModel @Inject constructor(
     private val _queryFindType = MutableStateFlow(QueryFindType.TITLE)
 
     private var _state = MutableStateFlow(
-        SearchState(query = mutableStateOf(savedStateHandle["query"] ?: "").value)
+        SearchState(query = savedStateHandle["query"] ?: "")
     )
 
+    @OptIn(FlowPreview::class)
     private val _notes = _queryFindType.flatMapLatest { queryFindType ->
         val subString = _state.value.query
 
@@ -36,14 +38,15 @@ class SearchViewModel @Inject constructor(
             QueryFindType.TITLE -> dao.getNotesByTitle(subString)
             QueryFindType.CONTENT -> dao.getNotesByContent(subString)
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+    }.debounce(2000).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     val state = combine(_state, _queryFindType, _notes) { state, queryFindType, notes ->
         state.copy(
+            query = state.query,
             items = notes,
             queryQueryFindType = queryFindType
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _state.value)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SearchState())
 
     fun onQueryFindTypeChange(newQueryFindType: QueryFindType) {
         _queryFindType.value = newQueryFindType
@@ -51,9 +54,7 @@ class SearchViewModel @Inject constructor(
 
     fun onQueryChange(newQuery: String) {
         savedStateHandle["query"] = newQuery
-        _state.value = _state.value.copy(
-            query = newQuery
-        )
+        _state.value = _state.value.copy(query = newQuery)
     }
 }
 

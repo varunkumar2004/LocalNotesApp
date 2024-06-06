@@ -26,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -37,20 +38,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.varunkumar.notesapp.QueryFindType
 import com.varunkumar.notesapp.domain.models.Note
+import com.varunkumar.notesapp.presentation.viewmodels.AppViewModel
 import com.varunkumar.notesapp.presentation.viewmodels.SearchViewModel
 import com.varunkumar.notesapp.ui.theme.customTextFieldColors
 import com.varunkumar.notesapp.ui.theme.darkPink
 import com.varunkumar.notesapp.ui.theme.lightPink
 import com.varunkumar.notesapp.ui.theme.mediumPink
+import com.varunkumar.notesapp.utils.CustomNavigationBar
 
 @Composable
 fun SearchScreen(
     modifier: Modifier = Modifier,
+    appViewModel: AppViewModel,
+    navController: NavHostController,
     onNoteClick: (Note) -> Unit
 ) {
     //initialized here because only used by this screen
@@ -67,116 +72,127 @@ fun SearchScreen(
         QueryFindType.CONTENT -> "Content"
     }
 
-    Column(
-        modifier = modifier
-    ) {
-        TextField(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(40.dp),
-            colors = customTextFieldColors(lightPink),
-            value = state.query,
-            singleLine = true,
-            placeholder = { Text(text = "Search") },
-            onValueChange = {
-                viewModel.onQueryChange(it)
-            },
-            leadingIcon = {
-                Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
-            },
-            trailingIcon = {
-                IconButton(onClick = { showDropDown = true }) {
-                    Icon(imageVector = Icons.Default.FilterAlt, contentDescription = "Filter")
-                }
-
-                if (showDropDown) {
-                    DropdownMenu(
-                        modifier = Modifier
-                            .background(lightPink),
-                        expanded = true,
-                        onDismissRequest = { showDropDown = false }
-                    ) {
-                        DropdownMenuItem(
-                            colors = MenuDefaults.itemColors(
-                                textColor = darkPink,
-                                trailingIconColor = mediumPink
-                            ),
-                            text = { Text(text = "Title") },
-                            onClick = {
-                                viewModel.onQueryFindTypeChange(QueryFindType.TITLE)
-                                showDropDown = false
-                            },
-                            trailingIcon = {
-                                Icon(
-                                    imageVector =
-                                    if (state.queryQueryFindType == QueryFindType.TITLE)
-                                        Icons.Default.RadioButtonChecked else Icons.Default.RadioButtonUnchecked,
-                                    contentDescription = null
-                                )
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(text = "Date") },
-                            onClick = {
-                                viewModel.onQueryFindTypeChange(QueryFindType.DATE)
-                                showDropDown = false
-                            },
-                            trailingIcon = {
-                                Icon(
-                                    imageVector =
-                                    if (state.queryQueryFindType == QueryFindType.DATE)
-                                        Icons.Default.RadioButtonChecked else Icons.Default.RadioButtonUnchecked,
-                                    contentDescription = null
-                                )
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(text = "Content") },
-                            onClick = {
-                                viewModel.onQueryFindTypeChange(QueryFindType.CONTENT)
-                                showDropDown = false
-                            },
-                            trailingIcon = {
-                                Icon(
-                                    imageVector =
-                                    if (state.queryQueryFindType == QueryFindType.CONTENT)
-                                        Icons.Default.RadioButtonChecked else Icons.Default.RadioButtonUnchecked,
-                                    contentDescription = null
-                                )
-                            }
-                        )
-                    }
-                }
-            }
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                modifier = Modifier.size(15.dp),
-                imageVector = Icons.Default.Warning,
-                contentDescription = null,
-                tint = mediumPink
-            )
-
-            Text(
-                style = MaterialTheme.typography.bodySmall,
-                color = mediumPink,
-                modifier = Modifier.padding(16.dp),
-                text = "Search results are based on $queryFindTypeString matches"
+    Scaffold(
+        modifier = modifier,
+        bottomBar = {
+            CustomNavigationBar(
+                appViewModel = appViewModel,
+                navController = navController
             )
         }
+    ) {
+        Column(
+            modifier = modifier
+                .padding(top = 10.dp)
+                .padding(horizontal = 10.dp)
+                .padding(it)
+        ) {
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(40.dp),
+                colors = customTextFieldColors(lightPink),
+                value = state.query,
+                singleLine = true,
+                placeholder = { Text(text = "Search") },
+                onValueChange = {
+                    viewModel.onQueryChange(it)
+                },
+                leadingIcon = {
+                    Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
+                },
+                trailingIcon = {
+                    IconButton(onClick = { showDropDown = true }) {
+                        Icon(imageVector = Icons.Default.FilterAlt, contentDescription = "Filter")
+                    }
 
-        NoteList(
-            modifier = Modifier.clickable {
+                    if (showDropDown) {
+                        DropdownMenu(
+                            modifier = Modifier
+                                .background(lightPink),
+                            expanded = true,
+                            onDismissRequest = { showDropDown = false }
+                        ) {
+                            DropdownMenuItem(
+                                colors = MenuDefaults.itemColors(
+                                    textColor = darkPink,
+                                    trailingIconColor = mediumPink
+                                ),
+                                text = { Text(text = "Title") },
+                                onClick = {
+                                    viewModel.onQueryFindTypeChange(QueryFindType.TITLE)
+                                    showDropDown = false
+                                },
+                                trailingIcon = {
+                                    Icon(
+                                        imageVector =
+                                        if (state.queryQueryFindType == QueryFindType.TITLE)
+                                            Icons.Default.RadioButtonChecked else Icons.Default.RadioButtonUnchecked,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(text = "Date") },
+                                onClick = {
+                                    viewModel.onQueryFindTypeChange(QueryFindType.DATE)
+                                    showDropDown = false
+                                },
+                                trailingIcon = {
+                                    Icon(
+                                        imageVector =
+                                        if (state.queryQueryFindType == QueryFindType.DATE)
+                                            Icons.Default.RadioButtonChecked else Icons.Default.RadioButtonUnchecked,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(text = "Content") },
+                                onClick = {
+                                    viewModel.onQueryFindTypeChange(QueryFindType.CONTENT)
+                                    showDropDown = false
+                                },
+                                trailingIcon = {
+                                    Icon(
+                                        imageVector =
+                                        if (state.queryQueryFindType == QueryFindType.CONTENT)
+                                            Icons.Default.RadioButtonChecked else Icons.Default.RadioButtonUnchecked,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+                        }
+                    }
+                }
+            )
 
-            },
-            notes = state.items,
-            toShowPinned = true,
-            onNoteClick = onNoteClick
-        )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = Modifier.size(15.dp),
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = null,
+                    tint = mediumPink
+                )
+
+                Text(
+                    style = MaterialTheme.typography.bodySmall,
+                    color = mediumPink,
+                    modifier = Modifier.padding(16.dp),
+                    text = "Search results are based on $queryFindTypeString matches"
+                )
+            }
+
+            NoteList(
+                modifier = Modifier,
+                notes = state.items,
+                toShowPinned = true,
+                onNoteClick = onNoteClick
+            )
+        }
     }
 }
 

@@ -1,6 +1,5 @@
 package com.varunkumar.notesapp.presentation.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -29,16 +28,17 @@ class DraftViewModel @Inject constructor(
 
     fun getNoteById(id: Int) {
         viewModelScope.launch {
-            dao.getNoteById(id).collect { note ->
-                _state = _state.copy(
-                    title = note.title,
-                    content = note.content ?: "",
-                    isPinned = note.isPinned
-                )
-            }
+            dao.getNoteById(id)
+                .collect { note ->
+                    note ?: return@collect
+                    _state = _state.copy(
+                        id = note.id,
+                        title = note.title,
+                        content = note.content ?: "",
+                        isPinned = note.isPinned
+                    )
+                }
         }
-
-        Log.d("DraftViewModel", "getNoteById: $id")
     }
 
     fun onTitleChange(newTitle: String) {
@@ -81,13 +81,24 @@ class DraftViewModel @Inject constructor(
 
     fun deleteNote(id: Int) {
         viewModelScope.launch {
-            dao.deleteNote(id)
+            getNoteById(id)
+
+            val note = Note(
+                id = id,
+                title = _state.title,
+                content = _state.content,
+                isPinned = _state.isPinned
+            )
+
+            dao.deleteNote(note)
         }
     }
 }
 
 data class AddNoteState(
+    val id: Int = 0,
     val title: String,
     val content: String,
     val isPinned: Boolean
 )
+

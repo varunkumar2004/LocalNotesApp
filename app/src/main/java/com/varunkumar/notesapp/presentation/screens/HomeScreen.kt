@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -15,37 +16,53 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.varunkumar.notesapp.domain.models.Note
 import com.varunkumar.notesapp.presentation.viewmodels.AppViewModel
 import com.varunkumar.notesapp.ui.theme.lightPink
+import com.varunkumar.notesapp.utils.CustomNavigationBar
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: AppViewModel,
+    navController: NavHostController,
     onNoteClick: (Note) -> Unit
 ) {
     val state = viewModel.state.collectAsState().value
 
-    Column(
+    Scaffold(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+        bottomBar = {
+            CustomNavigationBar(
+                appViewModel = viewModel,
+                navController = navController
+            )
+        }
     ) {
-        HeaderNotes(
-            modifier = Modifier.fillMaxWidth(),
-            title = "Pinned",
-            notes = state.pinnedNotes,
-            toShowPinned = true,
-            onNoteClick = onNoteClick
-        )
+        Column(
+            modifier = modifier
+                .padding(top = 10.dp)
+                .padding(horizontal = 10.dp)
+                .padding(it),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            HeaderNotes(
+                modifier = Modifier.fillMaxWidth(),
+                title = "Pinned",
+                notes = state.pinnedNotes,
+                toShowPinned = false,
+                onNoteClick = onNoteClick
+            )
 
-        HeaderNotes(
-            modifier = Modifier.fillMaxWidth(),
-            title = "All Notes",
-            notes = state.allNotes,
-            toShowPinned = false,
-            onNoteClick = onNoteClick
-        )
+            HeaderNotes(
+                modifier = Modifier.fillMaxWidth(),
+                title = "All Notes",
+                notes = state.allNotes,
+                toShowPinned = true,
+                onNoteClick = onNoteClick
+            )
+        }
     }
 }
 
