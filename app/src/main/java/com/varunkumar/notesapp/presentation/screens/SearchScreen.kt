@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.varunkumar.notesapp.QueryFindType
 import com.varunkumar.notesapp.domain.models.Note
 import com.varunkumar.notesapp.presentation.viewmodels.SearchViewModel
@@ -50,9 +51,10 @@ import com.varunkumar.notesapp.ui.theme.mediumPink
 @Composable
 fun SearchScreen(
     modifier: Modifier = Modifier,
-    viewModel: SearchViewModel,
     onNoteClick: (Note) -> Unit
 ) {
+    //initialized here because only used by this screen
+    val viewModel = hiltViewModel<SearchViewModel>()
     var showDropDown by remember {
         mutableStateOf(false)
     }
@@ -232,16 +234,3 @@ fun NoteList(
     }
 }
 
-@Preview
-@Composable
-private fun ListPrev() {
-    val note = Note(
-        id = 1,
-        title = "Title askdf kljadsh flkah  sdlkf hiwueh fkljlsdhf lkajdsh flkajshdflkahs",
-        content = "Content",
-        date = "Date",
-        isPinned = true
-    )
-
-
-}

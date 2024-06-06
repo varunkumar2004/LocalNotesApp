@@ -31,20 +31,22 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.varunkumar.notesapp.presentation.viewmodels.HomeViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.varunkumar.notesapp.presentation.viewmodels.DraftViewModel
 import com.varunkumar.notesapp.ui.theme.customTextFieldColors
 import com.varunkumar.notesapp.ui.theme.darkPink
 import com.varunkumar.notesapp.ui.theme.lightPink
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddNoteScreen(
+fun DraftScreen(
     modifier: Modifier = Modifier,
     id: Int,
-    viewModel: HomeViewModel,
     onBackClick: () -> Unit,
     onSavedClick: () -> Unit
 ) {
+    //initialized here because only used by this screen
+    val viewModel = hiltViewModel<DraftViewModel>()
     val state = viewModel.state
     var isTitleFocused by remember { mutableStateOf(false) }
     var isContentFocused by remember { mutableStateOf(false) }
@@ -99,7 +101,7 @@ fun AddNoteScreen(
                             if (id != -1) {
                                 viewModel.updateNote(id)
                             } else {
-                                if (state.title.isNotBlank() || state.content.isNotEmpty()) {
+                                if (state.title.isNotBlank() || state.title.isNotEmpty()) {
                                     viewModel.saveNote()
                                 }
                             }
@@ -136,9 +138,9 @@ fun AddNoteScreen(
                     .onFocusChanged { isTitleFocused = it.isFocused },
                 colors = customTextFieldColors(),
                 value = state.title,
-                onValueChange = {
-                    if (it.length <= 50) {
-                        viewModel.onTitleChange(it)
+                onValueChange = {title ->
+                    if (title.length <= 100) {
+                        viewModel.onTitleChange(title)
                     }
                 },
                 textStyle = MaterialTheme.typography.titleLarge,

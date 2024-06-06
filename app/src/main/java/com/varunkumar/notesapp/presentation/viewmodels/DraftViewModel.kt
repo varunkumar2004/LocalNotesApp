@@ -1,5 +1,6 @@
 package com.varunkumar.notesapp.presentation.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,7 +14,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class DraftViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val dao: NoteDao
 ) : ViewModel() {
@@ -36,6 +37,8 @@ class HomeViewModel @Inject constructor(
                 )
             }
         }
+
+        Log.d("DraftViewModel", "getNoteById: $id")
     }
 
     fun onTitleChange(newTitle: String) {
@@ -80,14 +83,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             dao.deleteNote(id)
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-
-        onTitleChange("")
-        onContentChange("")
-        _state = _state.copy(isPinned = false)
     }
 }
 

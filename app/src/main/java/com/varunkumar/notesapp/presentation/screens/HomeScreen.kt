@@ -43,7 +43,7 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth(),
             title = "All Notes",
             notes = state.allNotes,
-            toShowPinned = true,
+            toShowPinned = false,
             onNoteClick = onNoteClick
         )
     }
