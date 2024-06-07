@@ -219,13 +219,15 @@ fun NoteList(
                     )
                 },
                 supportingContent = {
-                    Text(
-                        color = mediumPink,
-                        text = if (note.content.isNullOrBlank()) "..." else note.content,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                    if (!note.content.isNullOrBlank()) {
+                        Text(
+                            color = mediumPink,
+                            text = note.content,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                 },
                 leadingContent = {
                     if (toShowPinned && note.isPinned) {

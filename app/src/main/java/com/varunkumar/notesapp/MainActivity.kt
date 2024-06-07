@@ -17,6 +17,7 @@ import com.varunkumar.notesapp.presentation.screens.SearchScreen
 import com.varunkumar.notesapp.presentation.viewmodels.AppViewModel
 import com.varunkumar.notesapp.ui.theme.NotesAppTheme
 import com.varunkumar.notesapp.utils.Routes
+import com.varunkumar.notesapp.utils.prevBackTraceRoute
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -30,26 +31,28 @@ class MainActivity : ComponentActivity() {
 
             NotesAppTheme {
                 NavHost(navController = navController, startDestination = Routes.Home.route) {
-                    composable(route = Routes.Home.route) {
+                    composable(route = Routes.Home.route) { backStackEntry ->
                         HomeScreen(
                             modifier = Modifier
                                 .fillMaxSize(),
                             viewModel = appViewModel,
                             navController = navController,
                             onNoteClick = { note ->
+                                backStackEntry.savedStateHandle["prevRoute"] = Routes.Home.route
                                 navController.navigate(Routes.Draft.route + "/${note.id}")
                                 appViewModel.selectItem(Routes.Home)
                             }
                         )
                     }
 
-                    composable(route = Routes.Search.route) {
+                    composable(route = Routes.Search.route) { backStackEntry ->
                         SearchScreen(
                             modifier = Modifier
                                 .fillMaxSize(),
                             appViewModel = appViewModel,
                             navController = navController,
                             onNoteClick = { note ->
+                                backStackEntry.savedStateHandle["prevRoute"] = Routes.Search.route
                                 navController.navigate(Routes.Draft.route + "/${note.id}")
                                 appViewModel.selectItem(Routes.Home)
                             }
@@ -63,19 +66,27 @@ class MainActivity : ComponentActivity() {
                         )
                     ) { backStackEntry ->
                         val id = backStackEntry.arguments?.getInt("id")
+                        val prevRouteString =
+                            backStackEntry.savedStateHandle.get<String>("prevRoute")
 
                         DraftScreen(
                             modifier = Modifier.fillMaxSize(),
                             id = id ?: -1,
                             onBackClick = {
-                                //TODO handle prev route here
-                                appViewModel.selectItem(Routes.Home)
-                                navController.navigateUp()
+                                if (prevRouteString != null) {
+                                    val prevRoute = prevBackTraceRoute(prevRouteString)
+                                    navController.navigateUp()
+                                    appViewModel.selectItem(prevRoute)
+                                } else {
+                                    navController.navigate(Routes.Home.route)
+                                    appViewModel.selectItem(Routes.Home)
+                                }
                             },
                             appViewModel = appViewModel,
                             navController = navController,
                             onSavedClick = {
                                 navController.navigate(Routes.Home.route)
+                                appViewModel.selectItem(Routes.Home)
                             }
                         )
                     }

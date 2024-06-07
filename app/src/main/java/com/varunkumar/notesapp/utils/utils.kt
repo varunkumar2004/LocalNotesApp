@@ -3,12 +3,10 @@ package com.varunkumar.notesapp.utils
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
@@ -20,8 +18,8 @@ import com.varunkumar.notesapp.ui.theme.darkPink
 import com.varunkumar.notesapp.ui.theme.lightPink
 import java.text.SimpleDateFormat
 
-fun extractTimeDate(timestamp: Long) : String {
-    val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy")
+fun extractTimeDate(timestamp: Long): String {
+    val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
     return simpleDateFormat.format(timestamp)
 }
 
@@ -29,7 +27,15 @@ sealed class Routes(val route: String, val icon: ImageVector) {
     data object Home : Routes("Home", Icons.Default.Home)
     data object Search : Routes("Search", Icons.Default.Search)
     data object Draft : Routes("Draft", Icons.Default.EditNote)
-    data object Profile : Routes("Profile", Icons.Default.Person)
+}
+
+fun prevBackTraceRoute(route: String): Routes {
+    return when (route) {
+        "Home" -> Routes.Home
+        "Search" -> Routes.Search
+        "Draft" -> Routes.Draft
+        else -> Routes.Home
+    }
 }
 
 @Composable
@@ -41,6 +47,7 @@ fun CustomNavigationBar(
     val selectedItem = appViewModel.state.collectAsState().value.selectedItem
 
     NavigationBar(
+        modifier = modifier,
         containerColor = lightPink,
         contentColor = darkPink
     ) {

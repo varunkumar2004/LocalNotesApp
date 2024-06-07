@@ -1,11 +1,9 @@
 package com.varunkumar.notesapp.presentation.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -19,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.varunkumar.notesapp.domain.models.Note
 import com.varunkumar.notesapp.presentation.viewmodels.AppViewModel
-import com.varunkumar.notesapp.ui.theme.lightPink
 import com.varunkumar.notesapp.utils.CustomNavigationBar
 
 @Composable
@@ -47,13 +44,15 @@ fun HomeScreen(
                 .padding(it),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            HeaderNotes(
-                modifier = Modifier.fillMaxWidth(),
-                title = "Pinned",
-                notes = state.pinnedNotes,
-                toShowPinned = false,
-                onNoteClick = onNoteClick
-            )
+            if (state.pinnedNotes.isNotEmpty()) {
+                HeaderNotes(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = "Pinned",
+                    notes = state.pinnedNotes,
+                    toShowPinned = false,
+                    onNoteClick = onNoteClick
+                )
+            }
 
             HeaderNotes(
                 modifier = Modifier.fillMaxWidth(),

@@ -8,11 +8,9 @@ import com.varunkumar.notesapp.domain.NoteDao
 import com.varunkumar.notesapp.domain.models.Note
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -23,33 +21,24 @@ class SearchViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val dao: NoteDao
 ) : ViewModel() {
-    private val _queryFindType = MutableStateFlow(QueryFindType.TITLE)
-
     private var _state = MutableStateFlow(
         SearchState(query = savedStateHandle["query"] ?: "")
     )
 
-    @OptIn(FlowPreview::class)
-    private val _notes = _queryFindType.flatMapLatest { queryFindType ->
-        val subString = _state.value.query
-
-        when (queryFindType) {
-            QueryFindType.DATE -> dao.getNotesByDate(subString)
-            QueryFindType.TITLE -> dao.getNotesByTitle(subString)
-            QueryFindType.CONTENT -> dao.getNotesByContent(subString)
+    private val _notes = _state.flatMapLatest { state ->
+        when (state.queryQueryFindType) {
+            QueryFindType.DATE -> dao.getNotesByDate(state.query)
+            QueryFindType.TITLE -> dao.getNotesByTitle(state.query)
+            QueryFindType.CONTENT -> dao.getNotesByContent(state.query)
         }
-    }.debounce(2000).stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    val state = combine(_state, _queryFindType, _notes) { state, queryFindType, notes ->
-        state.copy(
-            query = state.query,
-            items = notes,
-            queryQueryFindType = queryFindType
-        )
+    val state = combine(_state, _notes) { state, notes ->
+        state.copy(items = notes)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SearchState())
 
     fun onQueryFindTypeChange(newQueryFindType: QueryFindType) {
-        _queryFindType.value = newQueryFindType
+        _state.value = _state.value.copy(queryQueryFindType = newQueryFindType)
     }
 
     fun onQueryChange(newQuery: String) {
