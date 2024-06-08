@@ -41,7 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.varunkumar.notesapp.utils.QueryFindType
+import com.varunkumar.notesapp.QueryFindType
 import com.varunkumar.notesapp.domain.models.Note
 import com.varunkumar.notesapp.presentation.viewmodels.AppViewModel
 import com.varunkumar.notesapp.presentation.viewmodels.SearchViewModel
@@ -58,13 +58,13 @@ fun SearchScreen(
     navController: NavHostController,
     onNoteClick: (Note) -> Unit
 ) {
-    //initialized here because only used by this screen
-    val viewModel = hiltViewModel<SearchViewModel>()
+    val searchViewModel = hiltViewModel<SearchViewModel>()
+
     var showDropDown by remember {
         mutableStateOf(false)
     }
 
-    val state = viewModel.state.collectAsState().value
+    val state = searchViewModel.state.collectAsState().value
 
     val queryFindTypeString = when (state.queryQueryFindType) {
         QueryFindType.DATE -> "Date"
@@ -95,7 +95,7 @@ fun SearchScreen(
                 singleLine = true,
                 placeholder = { Text(text = "Search") },
                 onValueChange = {
-                    viewModel.onQueryChange(it)
+                    searchViewModel.onQueryChange(it)
                 },
                 leadingIcon = {
                     Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
@@ -119,8 +119,7 @@ fun SearchScreen(
                                 ),
                                 text = { Text(text = "Title") },
                                 onClick = {
-                                    viewModel.onQueryFindTypeChange(QueryFindType.TITLE)
-                                    showDropDown = false
+                                    searchViewModel.onQueryFindTypeChange(QueryFindType.TITLE)
                                 },
                                 trailingIcon = {
                                     Icon(
@@ -134,8 +133,7 @@ fun SearchScreen(
                             DropdownMenuItem(
                                 text = { Text(text = "Date") },
                                 onClick = {
-                                    viewModel.onQueryFindTypeChange(QueryFindType.DATE)
-                                    showDropDown = false
+                                    searchViewModel.onQueryFindTypeChange(QueryFindType.DATE)
                                 },
                                 trailingIcon = {
                                     Icon(
@@ -149,8 +147,7 @@ fun SearchScreen(
                             DropdownMenuItem(
                                 text = { Text(text = "Content") },
                                 onClick = {
-                                    viewModel.onQueryFindTypeChange(QueryFindType.CONTENT)
-                                    showDropDown = false
+                                    searchViewModel.onQueryFindTypeChange(QueryFindType.CONTENT)
                                 },
                                 trailingIcon = {
                                     Icon(
@@ -199,12 +196,15 @@ fun SearchScreen(
 @Composable
 fun NoteList(
     modifier: Modifier = Modifier,
+    range: Int? = null,
     notes: List<Note>,
     toShowPinned: Boolean,
     onNoteClick: (Note) -> Unit
 ) {
     LazyColumn {
-        items(notes) { note ->
+        items(
+            if (range != null) notes.take(range) else notes
+        ) { note ->
             ListItem(
                 modifier = modifier
                     .clickable {

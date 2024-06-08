@@ -30,6 +30,6 @@ interface NoteDao {
     @Query("SELECT * FROM Notes WHERE date_created LIKE '%' || :subDate || '%'")
     fun getNotesByDate(subDate: String): Flow<List<Note>>
 
-    @Query("SELECT * FROM Notes WHERE is_pinned=1")
+    @Query("SELECT * FROM Notes WHERE is_pinned=1 ORDER BY date_created DESC")
     fun getAllPinnedNotes(): Flow<List<Note>>
 }
