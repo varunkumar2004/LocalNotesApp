@@ -41,7 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.varunkumar.notesapp.QueryFindType
+import com.varunkumar.notesapp.utils.QueryFindType
 import com.varunkumar.notesapp.domain.models.Note
 import com.varunkumar.notesapp.presentation.viewmodels.AppViewModel
 import com.varunkumar.notesapp.presentation.viewmodels.SearchViewModel
