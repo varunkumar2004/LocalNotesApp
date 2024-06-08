@@ -21,7 +21,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,14 +49,14 @@ fun DraftScreen(
     onBackClick: () -> Unit,
     onSavedClick: () -> Unit
 ) {
-    //initialized here because only used by this screen
-    val viewModel = hiltViewModel<DraftViewModel>()
-    val state = viewModel.state
+    val draftViewModel = hiltViewModel<DraftViewModel>()
+
+    val state = draftViewModel.state
     var isTitleFocused by remember { mutableStateOf(false) }
     var isContentFocused by remember { mutableStateOf(false) }
 
     if (id != -1) {
-        viewModel.getNoteById(id)
+        draftViewModel.getNoteById(id)
     }
 
     Scaffold(
@@ -87,7 +86,7 @@ fun DraftScreen(
                     if (id != -1) {
                         IconButton(
                             onClick = {
-                                viewModel.deleteNote(id)
+                                draftViewModel.deleteNote(id)
                                 onSavedClick()
                             }
                         ) {
@@ -102,10 +101,10 @@ fun DraftScreen(
                     IconButton(
                         onClick = {
                             if (id != -1) {
-                                viewModel.updateNote(id)
+                                draftViewModel.updateNote(id)
                             } else {
                                 if (state.title.isNotBlank() || state.title.isNotEmpty()) {
-                                    viewModel.saveNote()
+                                    draftViewModel.saveNote()
                                 }
                             }
 
@@ -133,7 +132,7 @@ fun DraftScreen(
                 .padding(it)
                 .padding(vertical = 5.dp, horizontal = 10.dp)
         ) {
-            IconButton(onClick = viewModel::onIsPinnedChange) {
+            IconButton(onClick = draftViewModel::onIsPinnedChange) {
                 Icon(
                     tint = darkPink,
                     imageVector = if (state.isPinned) Icons.Default.BookmarkAdded else Icons.Default.BookmarkAdd,
@@ -149,7 +148,7 @@ fun DraftScreen(
                 value = state.title,
                 onValueChange = {title ->
                     if (title.length <= 100) {
-                        viewModel.onTitleChange(title)
+                        draftViewModel.onTitleChange(title)
                     }
                 },
                 textStyle = MaterialTheme.typography.titleLarge,
@@ -161,7 +160,7 @@ fun DraftScreen(
                 },
                 trailingIcon = {
                     if (state.title.isNotBlank() && isTitleFocused) {
-                        IconButton(onClick = { viewModel.onTitleChange("") }) {
+                        IconButton(onClick = { draftViewModel.onTitleChange("") }) {
                             Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear")
                         }
                     }
@@ -175,14 +174,14 @@ fun DraftScreen(
                 value = state.content,
                 colors = customTextFieldColors(),
                 onValueChange = {
-                    viewModel.onContentChange(it)
+                    draftViewModel.onContentChange(it)
                 },
                 shape = RoundedCornerShape(20.dp),
                 singleLine = false,
                 placeholder = { Text(text = "Enter text") },
                 trailingIcon = {
                     if (state.content.isNotBlank() && isContentFocused) {
-                        IconButton(onClick = { viewModel.onContentChange("") }) {
+                        IconButton(onClick = { draftViewModel.onContentChange("") }) {
                             Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear")
                         }
                     }

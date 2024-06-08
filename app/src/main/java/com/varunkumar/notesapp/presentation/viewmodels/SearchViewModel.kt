@@ -3,7 +3,7 @@ package com.varunkumar.notesapp.presentation.viewmodels
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.varunkumar.notesapp.utils.QueryFindType
+import com.varunkumar.notesapp.QueryFindType
 import com.varunkumar.notesapp.domain.NoteDao
 import com.varunkumar.notesapp.domain.models.Note
 import dagger.hilt.android.lifecycle.HiltViewModel
